@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+
+<launch>
+  <!-- ADD IN THIS LINE IF USE BAG FILE FOR SIMULATION -->
+  <param name="use_sim_time" value="false" />
+
+  <!-- STATIC TF -->
+  <node pkg="tf" type="static_transform_publisher" name="base_hokuyo_broadcaster" args="0.465 0 0.44 0 0 0 /base_link /laser 100"/>
+  <node pkg="tf" type="static_transform_publisher" name="base_imu_broadcaster" args="-1.493 0 0.54 0 0 0 /base_link /imu 100"/>
+  <node pkg="tf" type="static_transform_publisher" name="baselink_velodyne_broadcaster" args="-1.041 0 1.71 -1.571 0 0 /base_link /velodyne 100"/> 
+
+  <!-- SENSORS -->
+
+  <include file="$(find toyota_launcher)/launch/sensors/hokuyo_coms.launch"/>
+  <include file="$(find toyota_launcher)/launch/sensors/span_coms.launch"/>
+ <!-- <include file="$(find toyota_launcher)/launch/sensors/velodyne_coms.launch"/>-->
+
+ <!-- gmapping: requires odom, which is published by vrep in simulation, published by ekf in real -->
+  <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" >
+    <remap from="map" to="/map" />
+    <remap from="scan" to="/scan"/>
+    <param name="base_frame" value="base_link"/>
+    <param name="odom_frame" value="odom"/>
+    <param name="map_frame" value="map"/> 
+    <param name="particles" value="30" />
+    <param name="sigma" value ="0.05" />
+    <param name="linearUpdate" value ="1.0" />
+    <param name="angularUpdate" value ="0.5" />
+    <param name="srr" value ="0.00" />  <!--it was 0.00 at blk r, result ok-->
+    <param name="srt" value ="0.00" />  <!--it was 0.00 at blk r, result ok-->
+    <param name="str" value ="0.00" />  <!--it was 0.00 at blk r, result ok-->
+    <param name="stt" value ="0.00" />  <!--it was 0.00 at blk r, result ok-->
+    <param name="xmin" value="-100" />
+    <param name="xmax" value="100" />
+    <param name="ymin" value="-100" />
+    <param name="ymax" value="100" />
+    <param name="minimumScore" value="5000.0" /> <!--it was 300 at blk r, result ok-->
+    <param name="temporalUpdate" value="-1.0" />
+    <param name="maxRange" value="60.1" />
+    <param name="maxUrange" value="25" />
+    <param name="map_update_interval" value="1.5" />
+    <param name="delta" value="0.05" />
+  </node> 
+
+  <!-- Move base -->
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen">
+    <param name="footprint_padding" value="0.01" />
+    <param name="recovery_behavior_enabled" value="false" />
+    <param name="clearing_rotation_allowed" value="false" />
+    <param name="controller_frequency" value="20.0" />
+    <param name="controller_patience" value="100.0" />
+
+    <param name="base_global_planner" value="SBPLLatticePlanner" />
+    
+    <param name="base_local_planner" value="toyota_localplanner/ToyotaLocalPlanner" />
+
+    <param name="SBPLLatticePlanner/primitive_filename" value="$(find sbpl)/matlab/mprim/toyota_025_6mp_2.mprim" />
+    <rosparam file="$(find toyota_launcher)/launch/vehicle/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find toyota_launcher)/launch/vehicle/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find toyota_launcher)/launch/vehicle/local_costmap_params_close.yaml" command="load" />
+    <rosparam file="$(find toyota_launcher)/launch/vehicle/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find toyota_launcher)/launch/vehicle/toyota_localplanner_params.yaml" command="load" />
+    <rosparam file="$(find toyota_launcher)/launch/vehicle/sbpl_global_params.yaml" command="load" /> 
+  </node> 
+
+  <!-- PLOT TRAJECTORY OF SOURCE FRAME -->
+  <node respawn="true" pkg="hector_trajectory_server" type="hector_trajectory_server" name="hector_trajectory_server" output="screen" >
+    <param name="target_frame_name" type="string" value="/base_link" />
+    <param name="source_frame_name" type="string" value="/map" />
+    <param name="trajectory_update_rate" type="double" value="25" />
+    <param name="trajectory_publish_rate" type="double" value="25" />
+  </node> 
+  
+</launch>

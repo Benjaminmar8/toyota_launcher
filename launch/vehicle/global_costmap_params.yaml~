@@ -1,0 +1,20 @@
+#Independent settings for the planner's costmap
+global_costmap: 
+  global_frame: /map   #default /odom, for vrep simulator, should it be /map or /world
+  robot_base_frame: base_link
+  update_frequency: 5.0
+  publish_frequency: 2.0
+  #planner_frequency: 1.0
+  #planner_patience: 5.0
+  width: 50.0
+  height: 50.0
+  resolution: 0.25
+  origin_x: 0.0
+  origin_y: 0.0
+  static_map: true       #default false
+  rolling_window: false
+
+plugins:
+   - {name: static_map, type: "costmap_2d::StaticLayer"}
+   - {name: obstacles,  type: "costmap_2d::ObstacleLayer"}
+   - {name: inflater,   type: "costmap_2d::InflationLayer"}

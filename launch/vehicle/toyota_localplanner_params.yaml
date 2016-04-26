@@ -1,0 +1,18 @@
+ToyotaLocalPlanner:
+  odom_topic: /toyota_odometry
+  #path_topic: /move_base_node/SBPLLatticePlanner/plan
+  drive_topic: /drive
+  steer_topic: /steer
+  inscribed_radius: 1.0
+  circumscribed_radius: 1.0
+  goal_distance_bias: 1.0
+  goal_heading_bias: 0.5
+  lethal_cost_threshold: 255.0
+  planner_patience: 40.0
+  
+  steerWheelRate: 30
+  steerVehicleRate: 3.0
+  steer_gain: 0.3
+  steer_gain_theta: 1.0
+  steer_lp_gain: 0.45
+  minVelocity_steer: 0.1

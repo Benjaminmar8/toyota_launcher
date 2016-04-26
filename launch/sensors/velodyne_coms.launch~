@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<launch>
+ 
+<!--VELODYNE DRIVER-->
+
+  <arg name="pcap" default="" />
+  <arg name="calibration" default="/home/vc1/velodyne/32db.yaml"/>
+
+  <!-- start nodelet manager and driver nodelets -->
+  <include file="$(find velodyne_driver)/launch/nodelet_manager.launch">
+    <arg name="model" value="32E"/>
+    <arg name="pcap" value="$(arg pcap)"/>
+  </include>
+
+  <!-- start cloud nodelet -->
+  <include file="$(find velodyne_pointcloud)/launch/cloud_nodelet.launch"> <!--cloud_nodelet.launch-->
+    <arg name="calibration" value="$(arg calibration)"/>
+  </include>
+
+
+</launch>
